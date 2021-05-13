@@ -62,8 +62,8 @@ void Robot_Class::move(float posX, float posY, float posZ, float orientX, float 
 
   //here I want to implement my own monitoring loop where I can give position feedback
   
-  ros::Rate loop_rate(1);
-  actionlib::SimpleClientGoalState state = ac.getState();
+
+  //actionlib::SimpleClientGoalState state = ac.getState();
   
   feedback = n.subscribe<move_base_msgs::MoveBaseActionFeedback>("/move_base/feedback", 1000, &Robot_Class::feedbackCallback, this);
 
@@ -75,12 +75,25 @@ void Robot_Class::move(float posX, float posY, float posZ, float orientX, float 
     loop_rate.sleep();
   }
   */
+  
+  ros::Rate loop_rate(1);
+  bool atGoal;
+  atGoal = false;
 
-  // Next steps:
-  // - subscribe to /move_base/feedback topic to get coordinates
-  // - build a message that will be sent back to the AGM server giving coordinates & status
+  while(!atGoal) {
+    ac.waitForResult();
+    ROS_INFO("We are done trying to get to goal");
 
-  ac.waitForResult();
+    if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
+      ROS_INFO("We are at goal");
+      atGoal = true;
+    } else {
+      ROS_INFO("Trying to reach goal again");
+      ros::spin();
+      loop_rate.sleep();
+      ac.sendGoal(goal);
+    }
+  }
 
   if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
   {
@@ -204,6 +217,9 @@ int main(int argc, char** argv){
         cout<<job<<endl;
         cout<<status<<endl;
         cout<<robot.job.response.name<<endl;
+        //start over
+        robot.job.request.function = "START";
+        robot.job.request.location = "";
       }
       
       if(status==10003 || status==10002 || (status==0 && job=="NEXTJOB")){
