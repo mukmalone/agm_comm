@@ -2,6 +2,6 @@
 <launch>
 
   <node name="web_comm_server_node" pkg="agm_comm" type="web_comm_server_node" />
-  <node name="agm_worker_node" pkg="agm_comm" type="agm_worker_node" args="609423e4cfb25d002401caf2"/>
+  <node name="agm_worker_node" pkg="agm_comm" type="agm_worker_node" args="604050198c8330002487c013"/>
 
 </launch>
