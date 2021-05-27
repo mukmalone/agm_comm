@@ -15,11 +15,9 @@ class Robot_Class {
 		std::string key;
 		ros::NodeHandle n;	
     agm_msgs::WebComm job;		    
-    ros::Subscriber feedback;	
 
 		void agm_comm();
     void move(float posX, float posY, float posZ, float orientX, float orientY, float orientZ, float orientW);
-    void feedbackCallback(const move_base_msgs::MoveBaseActionFeedback::ConstPtr& msg);    
 };
 
 void Robot_Class::agm_comm()
@@ -27,9 +25,6 @@ void Robot_Class::agm_comm()
 	ros::ServiceClient agmClient = n.serviceClient<agm_msgs::WebComm>("/web_comm");
     job.request.key = key;
     agmClient.call(job);
-}
-void Robot_Class::feedbackCallback(const move_base_msgs::MoveBaseActionFeedback::ConstPtr& msg) {
-  cout<<*msg<<endl;
 }
 
 void Robot_Class::move(float posX, float posY, float posZ, float orientX, float orientY, float orientZ, float orientW)
@@ -59,41 +54,7 @@ void Robot_Class::move(float posX, float posY, float posZ, float orientX, float 
 
   ROS_INFO("Sending goal");
   ac.sendGoal(goal);
-
-  //here I want to implement my own monitoring loop where I can give position feedback
-  
-
-  //actionlib::SimpleClientGoalState state = ac.getState();
-  
-  feedback = n.subscribe<move_base_msgs::MoveBaseActionFeedback>("/move_base/feedback", 1000, &Robot_Class::feedbackCallback, this);
-
-  /*
-  while(!state.isDone()) {
-    state = ac.getState();    
-    ROS_INFO("Action state: %s",state.toString().c_str());
-    ros::spin();
-    loop_rate.sleep();
-  }
-  */
-  
-  ros::Rate loop_rate(1);
-  bool atGoal;
-  atGoal = false;
-
-  while(!atGoal) {
-    ac.waitForResult();
-    ROS_INFO("We are done trying to get to goal");
-
-    if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
-      ROS_INFO("We are at goal");
-      atGoal = true;
-    } else {
-      ROS_INFO("Trying to reach goal again");
-      ros::spin();
-      loop_rate.sleep();
-      ac.sendGoal(goal);
-    }
-  }
+  ac.waitForResult();
 
   if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
   {
@@ -222,7 +183,7 @@ int main(int argc, char** argv){
         robot.job.request.location = "";
       }
       
-      if(status==10003 || status==10002 || (status==0 && job=="NEXTJOB")){
+      if(status==10001 || status==10002 || status==10003 || status==10004 || status==10005 || (status==0 && job=="NEXTJOB")){
         //there wasn't a job to do, reset and ask again
         robot.job.request.function = "START";
       }
