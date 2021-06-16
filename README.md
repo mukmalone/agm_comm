@@ -2,4 +2,4 @@
 
 ### Description ###
 
-This repository is the definition of messages and services for the adaaptive goal management web service
+This repository is the definition of messages and services for the adaptive goal management web service
