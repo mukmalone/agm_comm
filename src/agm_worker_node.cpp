@@ -13,6 +13,7 @@ class Robot_Class {
    	
   public:	
 		std::string key;
+    std::string move_base;
 		ros::NodeHandle n;	
     agm_msgs::WebComm job;		    
 
@@ -29,9 +30,10 @@ void Robot_Class::agm_comm()
 
 void Robot_Class::move(float posX, float posY, float posZ, float orientX, float orientY, float orientZ, float orientW)
 {
+  cout<<"Trying to move"<<endl;
   //tell the action client that we want to spin a thread by default
-  MoveBaseClient ac("move_base", true);
-
+  MoveBaseClient ac(move_base, true);
+  cout<<"Movebase action client defined"<<endl;
   //wait for the action server to come up
   while(!ac.waitForServer(ros::Duration(5.0))){
     ROS_INFO("Waiting for the move_base action server to come up");
@@ -70,10 +72,12 @@ void Robot_Class::move(float posX, float posY, float posZ, float orientX, float 
 
 int main(int argc, char** argv){
   ros::init(argc, argv, "agm_worker_node");
-
+  
   Robot_Class robot;
   if(argc > 1){
     robot.key = argv[1];  
+    robot.move_base = argv[2];
+    
   } else {
     cout<<"No key defined for the robot interface"<<endl;  
   }
@@ -81,6 +85,7 @@ int main(int argc, char** argv){
   cout<<argc<<endl;
   cout<<argv<<endl;
   cout<<robot.key<<endl;
+  cout<<robot.move_base<<endl;
 
   //find next job
   robot.job.request.function = "START";
@@ -95,7 +100,7 @@ int main(int argc, char** argv){
     string job = robot.job.request.function;
     int status = robot.job.response.status;
     ros::Rate loop_rate(.5);
-
+    cout<<job<<endl;
     if (job=="START") {
       //ready for a new job
       robot.job.request.function = "NEXTJOB";
