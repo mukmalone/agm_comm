@@ -88,8 +88,6 @@ bool get_next_order(agm_msgs::WebComm::Request &req,
 
         url += "?key=" + req.key + "&owner=" + req.owner + "&location=" + req.location + "&poNum=" + req.poNum + "&stationStatus=" + req.stationStatus + "&stepStatus=" + req.stepStatus;
 
-        cout << url << endl;
-
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
@@ -99,7 +97,6 @@ bool get_next_order(agm_msgs::WebComm::Request &req,
         readBuffer.erase(remove(readBuffer.begin(), readBuffer.end(), '{'), readBuffer.end());
         readBuffer.erase(remove(readBuffer.begin(), readBuffer.end(), '}'), readBuffer.end());
         readBuffer.erase(remove(readBuffer.begin(), readBuffer.end(), '"'), readBuffer.end());
-        cout << readBuffer << endl;
 
         // format the tool and programm arrays so they don't contain ','
         int comma;
@@ -145,11 +142,11 @@ bool get_next_order(agm_msgs::WebComm::Request &req,
         for (auto &s : out)
         {
             string temp = s.substr(s.find(':') + 1, s.length());
-            cout << cnt << ":" << temp << endl;
             switch (cnt)
             {
             case 0:
                 // status
+                
                 res.status = stoi(temp);
                 break;
             case 1:
@@ -242,13 +239,11 @@ bool get_next_order(agm_msgs::WebComm::Request &req,
                 break;
             default:
                 break;
-                // cout <<s<<'\n';
             }
             cnt++;
         }
     }
 
-    // cout<<"Response: "<<res<<endl;
     return true;
 }
 
