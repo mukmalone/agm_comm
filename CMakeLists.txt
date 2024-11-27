@@ -35,8 +35,10 @@ include_directories(
 )
 
 add_executable(agm_worker_node src/agm_worker_node.cpp)
+add_dependencies(agm_worker_node ${PROJECT_NAME}_generate_messages_cpp)
 target_link_libraries(agm_worker_node ${catkin_LIBRARIES})
 
 add_executable(web_comm_server_node src/web_comm_server_node.cpp)
+add_dependencies(web_comm_server_node ${PROJECT_NAME}_generate_messages_cpp)
 target_link_libraries(web_comm_server_node ${catkin_LIBRARIES} curl)
 
